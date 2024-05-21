@@ -10,21 +10,36 @@ import {
   Typography,
   Container,
   Link,
+  Alert
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { login } from '../../services/UserService';
+import { useNavigate } from 'react-router-dom';
 
 const theme = createTheme();
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
     // Handle login logic here
-    console.log('Email:', email);
-    console.log('Password:', password);
+    const data = {
+      email: email,
+      password: password
+    }
+    login(data)
+      .then(res => {
+        setError(null);
+        navigate('/');
+      })
+      .catch(error => {
+        setError(error.response.data.message);
+      });
   };
 
   return (
@@ -44,7 +59,13 @@ function Login() {
           <Typography component="h1" variant="h5">
             Prijava
           </Typography>
+          
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+            {error != null ? (
+              <Alert severity='error' variant='filled'>
+                {error}
+              </Alert>
+            ) : null}
             <TextField
               margin="normal"
               required
