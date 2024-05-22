@@ -107,14 +107,15 @@ const Home = () => {
         <main>
           <Container maxWidth="sm" component="main" className={classes.heroContent}>
             <Typography variant="h2" align="center" color="textPrimary" gutterBottom>
-              Welcome to e-Health Clinic
+              e-Zdravko
             </Typography>
             <Typography variant="h5" align="center" color="textSecondary" paragraph>
-              We provide the best healthcare services to ensure your well-being. Book appointments, consult with specialists, and access your medical records online.
+              Mi pružamo najbolje zdravstvene usluge kako bismo osigurali vaše blagostanje. 
+              Zakažite termine, posavjetujte se sa specijalistima i pristupite vašim nalazima online.
             </Typography>
             <div style={{ textAlign: 'center' }}>
               <Button variant="contained" color="primary" href="#services">
-                Our Services
+                Naše usluge
               </Button>
             </div>
           </Container>
@@ -123,40 +124,40 @@ const Home = () => {
               <Grid item xs={12} md={6}>
                 <Paper className={classes.paper}>
                   <Typography variant="h6" gutterBottom>
-                    Comprehensive Care
+                    Sveobuhvatna briga
                   </Typography>
                   <Typography>
-                    Our clinic offers comprehensive healthcare services including general check-ups, specialist consultations, and emergency care.
+                    Naša klinika nudi sveobuhvatne zdravstvene usluge, uključujući opšte preglede, konsultacije sa specijalistima i hitnu pomoć.
                   </Typography>
                 </Paper>
               </Grid>
               <Grid item xs={12} md={6}>
                 <Paper className={classes.paper}>
                   <Typography variant="h6" gutterBottom>
-                    Advanced Technology
+                    Napredna tehnologija
                   </Typography>
                   <Typography>
-                    We use the latest technology to ensure accurate diagnoses and effective treatments. Your health is our top priority.
+                  Koristimo najnoviju tehnologiju kako bismo osigurali tačne dijagnoze i efikasne tretmane. Vaše zdravlje je naš prioritet.                  
                   </Typography>
                 </Paper>
               </Grid>
               <Grid item xs={12} md={6}>
                 <Paper className={classes.paper}>
                   <Typography variant="h6" gutterBottom>
-                    Qualified Specialists
+                    Kvalifikovani specijalisti
                   </Typography>
                   <Typography>
-                    Our team of specialists is highly qualified and experienced, providing top-notch care for all your health needs.
+                  Naš tim specijalista je visoko kvalifikovan i iskusan, pružajući vrhunsku njegu za sve vaše zdravstvene potrebe.                  
                   </Typography>
                 </Paper>
               </Grid>
               <Grid item xs={12} md={6}>
                 <Paper className={classes.paper}>
                   <Typography variant="h6" gutterBottom>
-                    Patient-Centered Approach
+                  Pristup usmjeren na pacijenta                  
                   </Typography>
                   <Typography>
-                    We believe in a patient-centered approach, where your comfort and convenience are paramount. Your health journey is our mission.
+                  Vjerujemo u pristup usmjeren na pacijenta, gdje je vaša udobnost na prvom mjestu. Vaše zdravstveno putovanje je naša misija.                  
                   </Typography>
                 </Paper>
               </Grid>
@@ -165,10 +166,10 @@ const Home = () => {
         </main>
         <footer className={classes.footer}>
           <Typography variant="h6" align="center" gutterBottom>
-            e-Health Clinic
+            e-Zdravko klinika
           </Typography>
           <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
-            Dedicated to your health and well-being
+          Posvećeni vašem zdravlju i dobrobiti          
           </Typography>
         </footer>
       </StyledApp>

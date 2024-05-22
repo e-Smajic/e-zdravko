@@ -8,6 +8,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import Grid from '@mui/material/Grid';
 import LoginButton from './LoginButton';
 import RegisterButton from './RegisterButton';
+import NewsButton from './NewsButton';
 import AppLogo from './AppLogo';
 
 const Search = styled('div')(({ theme }) => ({
@@ -73,6 +74,7 @@ export default function PrimarySearchAppBar() {
 
             <Grid item xs={3}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <NewsButton />
                 <RegisterButton />
                 <LoginButton />
               </Box> 

@@ -5,6 +5,7 @@ import Navbar from './components/navbar/Navbar';
 import Login from './components/login/Login';
 import Register from './components/register/Register';
 import Home from './components/home/Home';
+import News from './components/news/News';
 
 function App() {
   return (
@@ -13,6 +14,9 @@ function App() {
         <Navbar></Navbar>
         <Routes>
           <Route path='/' element={<Home />} />
+        </Routes>
+        <Routes>
+          <Route path="/news" element={<News />} />
         </Routes>
         <Routes>
           <Route path="/register" element={<Register />} />
