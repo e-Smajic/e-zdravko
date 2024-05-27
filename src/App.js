@@ -9,6 +9,7 @@ import News from './components/news/News';
 import NewsArticle from './components/news/NewsArticle';
 import FAQPage from './components/faq/Faq';
 import ContactPage from './components/contacts/Contacts';
+import ProfilePage from './components/user-profile/UserProfile';
 
 function App() {
   return (
@@ -35,6 +36,9 @@ function App() {
         </Routes>
         <Routes>
           <Route path="/login" element={<Login />} />
+        </Routes>
+        <Routes>
+          <Route path="/user" element={<ProfilePage />} />
         </Routes>
       </Router>
     </div>
