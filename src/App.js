@@ -10,6 +10,7 @@ import NewsArticle from './components/news/NewsArticle';
 import FAQPage from './components/faq/Faq';
 import ContactPage from './components/contacts/Contacts';
 import ProfilePage from './components/user-profile/UserProfile';
+import ForumList from './components/forum/ForumList';
 
 function App() {
   return (
@@ -39,6 +40,9 @@ function App() {
         </Routes>
         <Routes>
           <Route path="/user" element={<ProfilePage />} />
+        </Routes>
+        <Routes>
+        <Route path="/forum" element={<ForumList />} />
         </Routes>
       </Router>
     </div>
