@@ -1,10 +1,13 @@
-import React from 'react';
-import { Container, Typography, Box, Paper, Button, Divider, List, ListItem, ListItemText, ListItemAvatar, Avatar, InputBase, IconButton, Menu, MenuItem } from '@mui/material';
+import React, { useState } from 'react';
+import { Container, Typography, Box, Paper, Button, Divider, List, ListItem, ListItemText, ListItemAvatar, Avatar, InputBase, IconButton, Menu, MenuItem, Modal, TextField } from '@mui/material';
 import { Search as SearchIcon, FilterList as FilterListIcon } from '@mui/icons-material';
 
 const ForumList = () => {
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [currentPage, setCurrentPage] = React.useState(1);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [open, setOpen] = useState(false);
+  const [newPostTitle, setNewPostTitle] = useState('');
+  const [newPostContent, setNewPostContent] = useState('');
 
   const handleFilterClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -21,6 +24,23 @@ const ForumList = () => {
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+    // Handle form submission logic here, e.g., send the new post to the server
+    console.log('New Post Title:', newPostTitle);
+    console.log('New Post Content:', newPostContent);
+    // Close the modal after submission
+    handleClose();
   };
 
   // Dummy posts data for demonstration
@@ -85,30 +105,30 @@ const ForumList = () => {
               <SearchIcon />
             </IconButton>
           </Paper>
-          <Button variant="contained" color="primary" sx={{ ml: 2 }}>Kreiraj Post</Button>
+          <Button variant="contained" color="primary" sx={{ ml: 2 }} onClick={handleOpen}>Kreiraj Post</Button>
         </Box>
       </Box>
       <Divider />
       <List>
         {currentPosts.map((post) => (
-            <React.Fragment key={post.id}>
+          <React.Fragment key={post.id}>
             <ListItem alignItems="flex-start" sx={{ justifyContent: 'space-between' }}>
-                <ListItemText>
+              <ListItemText>
                 {post.content}
-                </ListItemText>
-                <Box display="flex" alignItems="center">
+              </ListItemText>
+              <Box display="flex" alignItems="center">
                 <ListItemText
-                    primary={post.author}
-                    secondary={post.date}
-                    sx={{ textAlign: 'right' }}
+                  primary={post.author}
+                  secondary={post.date}
+                  sx={{ textAlign: 'right' }}
                 />
                 <ListItemAvatar sx={{ marginLeft: '20px' }}>
-                    <Avatar alt={post.author} />
+                  <Avatar alt={post.author} />
                 </ListItemAvatar>
-                </Box>
+              </Box>
             </ListItem>
             <Divider variant="inset" component="li" />
-            </React.Fragment>
+          </React.Fragment>
         ))}
       </List>
       <Box mt={4} display="flex" justifyContent="center">
@@ -116,6 +136,42 @@ const ForumList = () => {
         <Typography variant="body1" component="div" sx={{ mx: 2 }}>{currentPage}</Typography>
         <Button disabled={currentPage === totalPages} onClick={() => handlePageChange(currentPage + 1)}>Sljedeća</Button>
       </Box>
+
+      <Modal open={open} onClose={handleClose} aria-labelledby="new-post-modal-title" aria-describedby="new-post-modal-description">
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4 }}>
+          <Typography id="new-post-modal-title" variant="h6" component="h2">New Post</Typography>
+          <form onSubmit={handleFormSubmit}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="title"
+              label="Title"
+              name="title"
+              value={newPostTitle}
+              onChange={(e) => setNewPostTitle(e.target.value)}
+              autoFocus
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="content"
+              label="Content"
+              type="text"
+              id="content"
+              value={newPostContent}
+              onChange={(e) => setNewPostContent(e.target.value)}
+              multiline
+              rows={4}
+            />
+            <Box mt={2} display="flex" justifyContent="flex-end">
+              <Button onClick={handleClose} sx={{ mr: 2 }}>Cancel</Button>
+              <Button type="submit" variant="contained" color="primary">Submit</Button>
+            </Box>
+          </form>
+        </Box>
+      </Modal>
     </Container>
   );
 };

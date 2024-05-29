@@ -10,3 +10,13 @@ export function login(data) {
 		},
 	});
 }
+
+export function register(data) {
+	return axios(env.API_GATEWAY.testUrl + '/UserManagementService/users/create', {
+		method: 'POST',
+		data: JSON.stringify(data),
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	});
+}

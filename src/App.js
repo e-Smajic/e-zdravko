@@ -11,38 +11,38 @@ import FAQPage from './components/faq/Faq';
 import ContactPage from './components/contacts/Contacts';
 import ProfilePage from './components/user-profile/UserProfile';
 import ForumList from './components/forum/ForumList';
+import ForumPost from './components/forum/ForumPost';
+import SurveyList from './components/survey/SurveyList';
+import SurveyPost from './components/survey/SurveyPost';
+import SurveyCreate from './components/survey/SurveyCreate';
 
 function App() {
+  const dummyPost = {
+    id: 1,
+    title: 'Sample Post Title',
+    author: 'John Doe',
+    date: '1 hour ago',
+    content: 'This is the content of the post.',
+  };
+
   return (
     <div className="App">
       <Router>
-        <Navbar></Navbar>
+        <Navbar />
         <Routes>
-          <Route path='/' element={<Home />} />
-        </Routes>
-        <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/news" element={<News />} />
-        </Routes>
-        <Routes>
           <Route path="/news/article" element={<NewsArticle />} />
-        </Routes>
-        <Routes>
           <Route path="/faq" element={<FAQPage />} />
-        </Routes>
-        <Routes>
           <Route path="/contacts" element={<ContactPage />} />
-        </Routes>
-        <Routes>
           <Route path="/register" element={<Register />} />
-        </Routes>
-        <Routes>
           <Route path="/login" element={<Login />} />
-        </Routes>
-        <Routes>
           <Route path="/user" element={<ProfilePage />} />
-        </Routes>
-        <Routes>
-        <Route path="/forum" element={<ForumList />} />
+          <Route path="/forum" element={<ForumList />} />
+          <Route path="/forum/:id" element={<ForumPost post={dummyPost} />} />
+          <Route path="/surveys" element={<SurveyList />} />
+          <Route path="/survey/:id" element={<SurveyPost />} />
+          <Route path="/survey/create" element={<SurveyCreate />} />
         </Routes>
       </Router>
     </div>

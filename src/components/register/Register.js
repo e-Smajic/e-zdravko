@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import {
-  Box, Container, TextField, Button, MenuItem, Grid, Typography, FormControl, InputLabel, Select,
+  Alert, Box, Container, TextField, Button, MenuItem, Grid, Typography, FormControl, InputLabel, Select,
   FormControlLabel, RadioGroup, Radio
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { register } from '../../services/UserService';
+import { useNavigate } from 'react-router-dom';
+
 
 const theme = createTheme();
 
@@ -18,12 +21,14 @@ const Register = () => {
     email: '',
     password: '',
     adresa_stanovanja: '',
-    slika: null,
+    slika: '',
     rola_id: '',
     rola_kod: '',
     broj_knjizice: '',
     uid: ''
   });
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,10 +45,19 @@ const Register = () => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData);
-    // Handle form submission
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    register(formData)
+      .then(res => {
+        console.log(res);
+        setError(null);
+        navigate('/');
+      })
+      .catch(error => {
+        console.log(error);
+        setError(error.response.data.message);
+      });
   };
 
   return (
@@ -60,6 +74,11 @@ const Register = () => {
                 <Typography component="h1" variant="h5" sx={{marginBottom: 2}}>
                     Registracija
                 </Typography>
+                {error != null ? (
+                    <Alert severity='error' variant='filled' style={{marginBottom: '20px'}}>
+                        {error}
+                    </Alert>
+                ) : null}
                 <form onSubmit={handleSubmit} noValidate>
                     <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
