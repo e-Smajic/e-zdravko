@@ -164,14 +164,6 @@ const Home = () => {
             </Grid>
           </Container>
         </main>
-        <footer className={classes.footer}>
-          <Typography variant="h6" align="center" gutterBottom>
-            e-Zdravko klinika
-          </Typography>
-          <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
-          Posvećeni vašem zdravlju i dobrobiti          
-          </Typography>
-        </footer>
       </StyledApp>
     </ThemeProvider>
   );
