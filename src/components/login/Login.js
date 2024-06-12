@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import {
   Avatar,
   Button,
@@ -14,7 +15,7 @@ import {
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { login } from '../../services/UserService';
+import { login, getUserWithMail } from '../../services/UserService';
 import { useNavigate } from 'react-router-dom';
 
 const theme = createTheme();
@@ -24,6 +25,15 @@ function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Get authToken from localStorage
+    const authToken = localStorage.getItem('authToken');
+    
+    if (authToken) {
+      
+    }
+  }, []);
 
   const handleSubmit = (event) => {
     event.preventDefault();

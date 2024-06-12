@@ -29,4 +29,14 @@ export function search(params) {
 		'Content-Type': 'application/json',
 	  },
 	});
-  }
+}
+
+export function getUserWithMail(email) {
+	return axios(env.API_GATEWAY.testUrl + '/UserManagementService/users/email/' + email, {
+		method: 'GET',
+		headers: {
+		  'Content-Type': 'application/json',
+		},
+	  });
+}
+
