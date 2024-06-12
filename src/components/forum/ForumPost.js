@@ -1,86 +1,121 @@
-// src/components/forum/ForumPost.js
-
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Container, Typography, Box, Paper, Divider, List, ListItem, ListItemText, ListItemAvatar, Avatar, Button, TextField } from '@mui/material';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Container, Typography, Box, Divider, TextField, Button, Paper } from '@mui/material';
+import { getQuestionById, createComment, getComments } from '../../services/ForumService';
+import { jwtDecode } from 'jwt-decode';
+import { getUserWithMail } from '../../services/UserService';
 
 const ForumPost = () => {
   const { id } = useParams();
   const [post, setPost] = useState(null);
+  const [user, setUser] = useState(null);
+  const [commentContent, setCommentContent] = useState('');
+  const [comments, setComments] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Replace this with a real API call
-    const fetchPost = async () => {
-      // Dummy data for demonstration purposes
-      const post = {
-        id: id,
-        title: `Post Title ${id}`,
-        author: 'John Doe',
-        date: '1 hour ago',
-        content: `This is the content of the post with ID ${id}.`,
-      };
-      setPost(post);
-    };
-
-    fetchPost();
+    const authToken = localStorage.getItem('authToken');
+    const decodedToken = jwtDecode(authToken);
+    const mail = decodedToken.sub;
+    if (!authToken) {
+      navigate('/login');
+    } else {
+      fetchPost();
+      fetchComments();
+    }
+    getUserWithMail(mail).then(res => {
+      setUser(res.data);
+    }).catch(error => {
+      console.log(error);
+    });
   }, [id]);
 
-  const comments = [
-    { id: 1, author: 'Alice Johnson', date: '30 minutes ago', content: 'This is a comment on the post.' },
-    { id: 2, author: 'Bob Brown', date: '1 hour ago', content: 'Another comment here!' },
-    // Add more comments here
-  ];
+  const fetchPost = async () => {
+    try {
+      const response = await getQuestionById(id);
+      setPost(response.data);
+    } catch (error) {
+      console.error('Error fetching post:', error);
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      const response = await getComments();
+      setComments(response.data);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  };
+
+  const handleCommentSubmit = async () => {
+    try {
+      await createComment({
+        questionId: id,
+        userUid: user.uid,
+        sadrzaj: commentContent,
+        anonimnost: 0
+      });
+      // Refresh the comments after submitting the new comment
+      fetchComments();
+      // Clear the comment input field
+      setCommentContent('');
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+    }
+    window.location.reload(); // Consider removing this line if unnecessary
+  };
 
   if (!post) {
     return <div>Loading...</div>;
   }
 
+  // Filter comments based on the questionId of the current post
+  const postComments = comments.filter(comment => comment.questionId == id);
+
   return (
     <Container maxWidth="md" style={{ marginTop: '2rem' }}>
-      <Box mb={4}>
-        <Typography variant="h3" component="h1">{post.title}</Typography>
-        <Box display="flex" alignItems="center" mt={2} mb={4}>
-          <Avatar alt={post.author} />
-          <Box ml={2}>
-            <Typography variant="body1" component="p">{post.author}</Typography>
-            <Typography variant="body2" component="p">{post.date}</Typography>
-          </Box>
-        </Box>
-        <Paper elevation={0} style={{ padding: '1rem' }}>
-          <Typography variant="body1" component="p">{post.content}</Typography>
-        </Paper>
-      </Box>
+      <Typography variant="h3" component="h1">
+        {post.naslov}
+      </Typography>
       <Divider />
-      <Box mt={4}>
-        <Typography variant="h5" component="h2">Comments</Typography>
-        <List>
-          {comments.map((comment) => (
-            <React.Fragment key={comment.id}>
-              <ListItem alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar alt={comment.author} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={comment.content}
-                  secondary={`${comment.author} - ${comment.date}`}
-                />
-              </ListItem>
-              <Divider variant="inset" component="li" />
-            </React.Fragment>
-          ))}
-        </List>
+      <Box mt={2}>
+        <Typography variant="body1" component="p">
+          {post.sadrzaj}
+        </Typography>
       </Box>
       <Box mt={4}>
-        <Typography variant="h6" component="h3">Add a Comment</Typography>
-        <TextField
-          label="Comment"
-          multiline
-          rows={4}
-          variant="outlined"
-          fullWidth
-          margin="normal"
-        />
-        <Button variant="contained" color="primary">Submit</Button>
+        <Typography variant="h5" component="h2">
+          Comments
+        </Typography>
+        {/* Display existing comments */}
+        {postComments.map((comment, index) => (
+          <Paper key={index} elevation={3} style={{ padding: '1rem', marginTop: '1rem' }}>
+            <Typography variant="body1" component="p">
+              {comment.sadrzaj}
+            </Typography>
+          </Paper>
+        ))}
+        {/* Comment Form */}
+        <Box mt={4}>
+          <TextField
+            multiline
+            rows={4}
+            fullWidth
+            label="Add a comment"
+            variant="outlined"
+            value={commentContent}
+            onChange={(e) => setCommentContent(e.target.value)}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleCommentSubmit}
+            style={{ marginTop: '1rem' }}
+          >
+            Post Comment
+          </Button>
+        </Box>
       </Box>
     </Container>
   );

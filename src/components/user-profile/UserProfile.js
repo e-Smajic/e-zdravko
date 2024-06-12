@@ -6,29 +6,56 @@ import diaryLogo from './img/diary-logo.png';
 import resultsLogo from './img/results-logo.png';
 import therapyLogo from './img/therapy-logo.png';
 import { jwtDecode } from 'jwt-decode';
-import { getUserWithMail } from '../../services/UserService';
+import { getUserWithMail, validateToken } from '../../services/UserService';
 import { useState, useEffect } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       const authToken = localStorage.getItem('authToken');
-      const decodedToken = jwtDecode(authToken);
-      const mail = decodedToken.sub;
+
+      if (authToken) {
+
+        validateToken({token: authToken}).then(res => {
+          const decodedToken = jwtDecode(authToken);
+          const mail = decodedToken.sub;
+          
+          getUserWithMail(mail).then(res => {
+            console.log(res.data);
+            setUser(res.data);
+          }).catch(error => {
+            console.log(error);
+          });
+        }).catch(err => {
+          navigate('/login');
+        });
+    
+      }
+      else {
+        navigate('/login');
+      }
+
       
-      getUserWithMail(mail).then(res => {
-        console.log(res.data);
-        setUser(res.data);
-      }).catch(error => {
-        console.log(error);
-      });
     };
 
     fetchData();
   }, []);
+
+  const handleDiaryClick = () => {
+    navigate('/diary-entries');
+  }
+
+  const handleTherapyClick = () => {
+    navigate('/therapy');
+  }
+
+  const handleTestClick = () => {
+    navigate('/test-results');
+  }
 
   return (
     <Container maxWidth="md" style={{ marginTop: '2rem' }}>
@@ -74,6 +101,7 @@ const ProfilePage = () => {
             justifyContent: 'center',
             alignItems: 'center',
           }}
+          onClick={handleDiaryClick}
         >
           <img src={diaryLogo} style={{width: '100px'}}/>
           <Typography variant="h6" component="div">
@@ -91,10 +119,11 @@ const ProfilePage = () => {
             justifyContent: 'center',
             alignItems: 'center',
           }}
+          onClick={handleTherapyClick}
         >
           <img src={therapyLogo} style={{width: '100px'}}/>
           <Typography variant="h6" component="div">
-            Naruči terapiju
+            Terapije
           </Typography>
         </Button>
         <Button
@@ -108,6 +137,7 @@ const ProfilePage = () => {
             justifyContent: 'center',
             alignItems: 'center',
           }}
+          onClick={handleTestClick}
         >
           <img src={resultsLogo} style={{width: '100px'}}/>
           <Typography
