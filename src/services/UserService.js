@@ -61,3 +61,26 @@ export function getNotificationsFromUser(uid) {
 	})
 }
 
+export function getHealthDiaryFromUser(uid) {
+	const token = localStorage.getItem('authToken');
+	return axios(env.API_GATEWAY.testUrl + '/PatientService/api/diary-entries/uid/' + uid, {
+		method: 'GET',
+		headers: {
+			'Authorization': `Bearer ${token}`,
+			'Content-Type': 'application/json',
+		  },
+	})
+}
+
+export function postDiaryEntry(data) {
+	const token = localStorage.getItem('authToken');
+	return axios(env.API_GATEWAY.testUrl + '/PatientService/api/diary-entries/', {
+		method: 'POST',
+		data: JSON.stringify(data),
+		headers: {
+			'Authorization': `Bearer ${token}`,
+			'Content-Type': 'application/json',
+		},
+	});
+}
+

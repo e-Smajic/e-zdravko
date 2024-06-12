@@ -10,7 +10,6 @@ import { getUserWithMail, validateToken } from '../../services/UserService';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
@@ -45,6 +44,18 @@ const ProfilePage = () => {
 
     fetchData();
   }, []);
+
+  const handleDiaryClick = () => {
+    navigate('/diary-entries');
+  }
+
+  const handleTherapyClick = () => {
+    navigate('/therapy');
+  }
+
+  const handleTestClick = () => {
+    navigate('/test-results');
+  }
 
   return (
     <Container maxWidth="md" style={{ marginTop: '2rem' }}>
@@ -90,6 +101,7 @@ const ProfilePage = () => {
             justifyContent: 'center',
             alignItems: 'center',
           }}
+          onClick={handleDiaryClick}
         >
           <img src={diaryLogo} style={{width: '100px'}}/>
           <Typography variant="h6" component="div">
@@ -107,6 +119,7 @@ const ProfilePage = () => {
             justifyContent: 'center',
             alignItems: 'center',
           }}
+          onClick={handleTherapyClick}
         >
           <img src={therapyLogo} style={{width: '100px'}}/>
           <Typography variant="h6" component="div">
@@ -124,6 +137,7 @@ const ProfilePage = () => {
             justifyContent: 'center',
             alignItems: 'center',
           }}
+          onClick={handleTestClick}
         >
           <img src={resultsLogo} style={{width: '100px'}}/>
           <Typography

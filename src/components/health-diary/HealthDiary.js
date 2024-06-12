@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { CssBaseline, Container, Typography, TextField, Button, Grid, Paper, Divider } from '@mui/material';
 import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
+import { getUserWithMail, validateToken, postDiaryEntry } from '../../services/UserService';
+import { jwtDecode } from 'jwt-decode';
 
 const theme = createTheme();
 
@@ -36,15 +39,19 @@ const StyledHealthDiary = styled('div')(({ theme }) => ({
 }));
 
 const HealthDiary = () => {
-  const [entries, setEntries] = useState([]);
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
   const [newEntry, setNewEntry] = useState({
-    note: '',
-    weight: '',
-    height: '',
-    age: '',
-    calories: '',
-    steps: '',
-    distance: '',
+    user_uid: "string",
+    datum: "2024-06-12",
+    visina: 300,
+    tezina: 300,
+    bmi: 70,
+    puls: 300,
+    unos_vode: 30,
+    broj_koraka: 100000,
+    id: 0
   });
 
   const handleInputChange = (event) => {
@@ -54,18 +61,40 @@ const HealthDiary = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (newEntry.note.trim() !== '') {
-      setEntries([...entries, { id: Date.now(), ...newEntry }]);
-      setNewEntry({
-        note: '',
-        weight: '',
-        height: '',
-        age: '',
-        calories: '',
-        steps: '',
-        distance: '',
-      });
-    }
+
+    const authToken = localStorage.getItem('authToken');
+
+      if (authToken) {
+        
+        validateToken({token: authToken}).then(res => {
+          const decodedToken = jwtDecode(authToken);
+          const mail = decodedToken.sub;
+          
+          getUserWithMail(mail).then(res => {
+            console.log(res.data);
+            setUser(res.data);
+            newEntry.user_uid = res.data.uid;
+          }).then(() => {
+            postDiaryEntry(newEntry).then(res => {
+              console.log('DIARY', res);
+              navigate('/diary-entries');
+            }).catch(err => {
+              console.log(err);
+            });
+          })     
+          .catch(error => {
+            console.log(error);
+          });
+        }).catch(err => {
+          navigate('/login');
+        });
+    
+      }
+      else {
+        navigate('/login');
+      }
+
+    
   };
 
   return (
@@ -82,80 +111,51 @@ const HealthDiary = () => {
             </Typography>
             <form className={classes.form} onSubmit={handleSubmit}>
               <TextField
-                label="Note"
+                label="Težina (kg)"
                 variant="outlined"
-                name="note"
-                fullWidth
-                multiline
-                rows={4}
-                value={newEntry.note}
+                name="tezina"
+                value={newEntry.tezina}
                 onChange={handleInputChange}
               />
               <TextField
-                label="Weight (kg)"
+                label="Visina (cm)"
                 variant="outlined"
-                name="weight"
-                value={newEntry.weight}
+                name="visina"
+                value={newEntry.visina}
                 onChange={handleInputChange}
               />
               <TextField
-                label="Height (cm)"
+                label="BMI"
                 variant="outlined"
-                name="height"
-                value={newEntry.height}
+                name="bmi"
+                value={newEntry.bmi}
                 onChange={handleInputChange}
               />
               <TextField
-                label="Age"
+                label="Puls"
                 variant="outlined"
-                name="age"
-                value={newEntry.age}
+                name="puls"
+                value={newEntry.puls}
                 onChange={handleInputChange}
               />
               <TextField
-                label="Calories Intake"
+                label="Broj koraka"
                 variant="outlined"
-                name="calories"
-                value={newEntry.calories}
+                name="broj_koraka"
+                value={newEntry.broj_koraka}
                 onChange={handleInputChange}
               />
               <TextField
-                label="Steps"
+                label="Unos vode (l)"
                 variant="outlined"
-                name="steps"
-                value={newEntry.steps}
-                onChange={handleInputChange}
-              />
-              <TextField
-                label="Distance Travelled (km)"
-                variant="outlined"
-                name="distance"
-                value={newEntry.distance}
+                name="unos_vode"
+                value={newEntry.unos_vode}
                 onChange={handleInputChange}
               />
               <Button variant="contained" color="primary" type="submit">
                 Add Entry
               </Button>
             </form>
-          </Paper>
-          <Divider />
-          <Paper className={classes.paper} elevation={3}>
-            <Typography variant="h5" align="center" gutterBottom>
-              Diary Entries
-            </Typography>
-            <Grid container spacing={2}>
-              {entries.map((entry) => (
-                <Grid item xs={12} key={entry.id}>
-                  <Paper className={classes.paper} elevation={1}>
-                    <Typography variant="body1">
-                      {entry.note}
-                      <br />
-                      Weight: {entry.weight} kg, Height: {entry.height} cm, Age: {entry.age}, Calories: {entry.calories}, Steps: {entry.steps}, Distance: {entry.distance} km
-                    </Typography>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
           </Paper>
         </Container>
       </StyledHealthDiary>
@@ -164,3 +164,4 @@ const HealthDiary = () => {
 };
 
 export default HealthDiary;
+
