@@ -79,9 +79,18 @@ export default function PrimarySearchAppBar() {
         getUserWithMail(mail).then(res => {
           console.log(res.data);
           setUser(res.data);
+
+          getNotificationsFromUser(res.data.uid).then(res => {
+            const lastFiveNotifications = res.data.slice(-5);
+            setNotifications(lastFiveNotifications);
+          }).catch(err => {
+            console.log(err);
+          });
+
         }).catch(error => {
           console.log(error);
         });
+
       }).catch(err => {
         console.log(err);
       });
@@ -105,14 +114,6 @@ export default function PrimarySearchAppBar() {
 
   const handleNotificationClick = (event) => {
     setNotificationAnchorEl(event.currentTarget);
-    if (user) {
-      getNotificationsFromUser(user.uid).then(res => {
-        const lastFiveNotifications = res.data.slice(-5);
-        setNotifications(lastFiveNotifications);
-      }).catch(err => {
-        console.log(err);
-      });
-    }
   };
 
 
