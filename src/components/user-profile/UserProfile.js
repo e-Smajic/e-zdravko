@@ -5,14 +5,30 @@ import 'react-calendar/dist/Calendar.css';
 import diaryLogo from './img/diary-logo.png';
 import resultsLogo from './img/results-logo.png';
 import therapyLogo from './img/therapy-logo.png';
+import { jwtDecode } from 'jwt-decode';
+import { getUserWithMail } from '../../services/UserService';
+import { useState, useEffect } from 'react';
+
 
 const ProfilePage = () => {
-  const user = {
-    image: 'https://example.com/path-to-user-image.jpg',
-    fullName: 'Ivo Zadro',
-    age: 56,
-    role: 'Pacijent'
-  };
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const authToken = localStorage.getItem('authToken');
+      const decodedToken = jwtDecode(authToken);
+      const mail = decodedToken.sub;
+      
+      getUserWithMail(mail).then(res => {
+        console.log(res.data);
+        setUser(res.data);
+      }).catch(error => {
+        console.log(error);
+      });
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <Container maxWidth="md" style={{ marginTop: '2rem' }}>
@@ -21,12 +37,13 @@ const ProfilePage = () => {
       </Typography>
       <Box display="flex" justifyContent="space-between" mb={4}>
         <Paper elevation={3} style={{ padding: '2rem', textAlign: 'center', flex: 1, marginRight: '1rem' }}>
-          <Avatar src={user.image} alt={user.fullName} style={{ width: '100px', height: '100px', margin: '0 auto' }} />
+          <Avatar style={{ width: '100px', height: '100px', margin: '0 auto' }}>{user ? user.ime.charAt(0) : ' '}</Avatar>
           <Typography variant="h5" component="h2" gutterBottom>
-            {user.fullName}
+            {user ? user.ime + ' ' + user.prezime : ' '}
           </Typography>
-          <Typography variant="body1">Godine: {user.age}</Typography>
-          <Typography variant="body1">Uloga: {user.role}</Typography>
+          <Typography variant="body1">Datum rođenja: {user ? user.datum_rodjenja : ' '}</Typography>
+          <Typography variant="body1">Spol: {user ? user.spol : ' '}</Typography>
+          <Typography variant="body1">Uloga: {user ? user.rola.nazivRole : ' '}</Typography>
         </Paper>
         <Paper elevation={3} style={{ padding: '2rem', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Calendar />

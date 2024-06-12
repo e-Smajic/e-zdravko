@@ -2,7 +2,7 @@ import axios from 'axios';
 import { env } from '../config/env';
 
 export function login(data) {
-	return axios(env.API_GATEWAY.testUrl + '/UserManagementService/users/login', {
+	return axios(env.API_GATEWAY.testUrl + '/UserManagementService/users/token', {
 		method: 'POST',
 		data: JSON.stringify(data),
 		headers: {
@@ -20,3 +20,23 @@ export function register(data) {
 		},
 	});
 }
+
+export function search(params) {
+	return axios(env.API_GATEWAY.testUrl + '/UserManagementService/users/search', {
+	  method: 'GET',
+	  params: params,
+	  headers: {
+		'Content-Type': 'application/json',
+	  },
+	});
+}
+
+export function getUserWithMail(email) {
+	return axios(env.API_GATEWAY.testUrl + '/UserManagementService/users/email/' + email, {
+		method: 'GET',
+		headers: {
+		  'Content-Type': 'application/json',
+		},
+	  });
+}
+

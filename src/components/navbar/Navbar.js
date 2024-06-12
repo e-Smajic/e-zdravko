@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -10,6 +12,11 @@ import LoginButton from './LoginButton';
 import RegisterButton from './RegisterButton';
 import NewsButton from './NewsButton';
 import AppLogo from './AppLogo';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import { Avatar, IconButton, Badge, MenuItem, Menu } from '@mui/material';
+import { search } from '../../services/UserService';
+import { jwtDecode } from 'jwt-decode';
+import { getUserWithMail } from '../../services/UserService';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -51,6 +58,66 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function PrimarySearchAppBar() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  useEffect(() => {
+    const authToken = localStorage.getItem('authToken');
+    if (authToken) {
+      setIsLoggedIn(true);
+      const decodedToken = jwtDecode(authToken);
+      const mail = decodedToken.sub;
+      console.log(mail);
+
+      getUserWithMail(mail).then(res => {
+        console.log(res.data);
+        setUser(res.data);
+      }).catch(error => {
+        console.log(error);
+      });
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
+
+  const handleInputChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleSearch = async (event) => {
+    event.preventDefault();
+    try {
+      navigate(`/users?search=${searchQuery}`);
+    } catch (error) {
+      console.error('Error during search:', error);
+    }
+  };
+
+  const handleNotificationClick = () => {
+    // Handle notification button click
+  };
+
+  const handleMojProfilClick = () => {
+    navigate('/user');
+  }
+
+  const handleOdjavaClick = () => {
+    localStorage.removeItem('authToken');
+    navigate('/');
+    window.location.reload();
+  }
+
+  const handleAvatarClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Box>
       <AppBar position="static">
@@ -59,7 +126,9 @@ export default function PrimarySearchAppBar() {
             <AppLogo />
 
             <Grid item xs={6}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Box  component="form"
+                    onSubmit={handleSearch}
+                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Search>
                   <SearchIconWrapper>
                     <SearchIcon />
@@ -67,17 +136,42 @@ export default function PrimarySearchAppBar() {
                   <StyledInputBase
                     placeholder="Pretraži..."
                     inputProps={{ 'aria-label': 'search' }}
+                    value={searchQuery}
+                    onChange={handleInputChange}
                   />
                 </Search>
               </Box>  
             </Grid>
 
-            <Grid item xs={3}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <NewsButton />
-                <RegisterButton />
-                <LoginButton />
-              </Box> 
+            <Grid item xs={3} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+              {isLoggedIn && user ? (
+                <>
+                  <IconButton onClick={handleNotificationClick} color="inherit" sx={{marginRight: "10px"}}>
+                    <Badge badgeContent={0} color="secondary">
+                      <NotificationsIcon />
+                    </Badge>
+                  </IconButton>
+                  <div>
+                    <Avatar onClick={handleAvatarClick}>
+                      {user ? user.ime.charAt(0) : '?'}
+                    </Avatar>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={Boolean(anchorEl)}
+                      onClose={handleCloseMenu}
+                    >
+                      <MenuItem onClick={handleMojProfilClick}>Moj profil</MenuItem>
+                      <MenuItem onClick={handleOdjavaClick}>Odjava</MenuItem>
+                    </Menu>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <NewsButton />
+                  <RegisterButton />
+                  <LoginButton />
+                </>
+              )}
             </Grid>
           </Grid>
         </Toolbar>
