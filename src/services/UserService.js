@@ -20,3 +20,13 @@ export function register(data) {
 		},
 	});
 }
+
+export function search(params) {
+	return axios(env.API_GATEWAY.testUrl + '/UserManagementService/users/search', {
+	  method: 'GET',
+	  params: params,
+	  headers: {
+		'Content-Type': 'application/json',
+	  },
+	});
+  }

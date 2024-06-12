@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -10,6 +12,7 @@ import LoginButton from './LoginButton';
 import RegisterButton from './RegisterButton';
 import NewsButton from './NewsButton';
 import AppLogo from './AppLogo';
+import { search } from '../../services/UserService';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -51,6 +54,22 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function PrimarySearchAppBar() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  const handleInputChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleSearch = async (event) => {
+    event.preventDefault();
+    try {
+      navigate(`/users?search=${searchQuery}`);
+    } catch (error) {
+      console.error('Error during search:', error);
+    }
+  };
+
   return (
     <Box>
       <AppBar position="static">
@@ -59,7 +78,9 @@ export default function PrimarySearchAppBar() {
             <AppLogo />
 
             <Grid item xs={6}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Box  component="form"
+                    onSubmit={handleSearch}
+                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Search>
                   <SearchIconWrapper>
                     <SearchIcon />
@@ -67,6 +88,8 @@ export default function PrimarySearchAppBar() {
                   <StyledInputBase
                     placeholder="Pretraži..."
                     inputProps={{ 'aria-label': 'search' }}
+                    value={searchQuery}
+                    onChange={handleInputChange}
                   />
                 </Search>
               </Box>  
