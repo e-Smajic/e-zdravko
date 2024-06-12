@@ -34,11 +34,14 @@ function Login() {
     }
     login(data)
       .then(res => {
+        console.log(res);
+        const token = res.data;
+        localStorage.setItem('authToken', token);
         setError(null);
         navigate('/');
       })
       .catch(error => {
-        setError(error.response.data.message);
+        setError("Podaci za prijavu nisu ispravni!");
       });
   };
 
