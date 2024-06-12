@@ -13,6 +13,7 @@ import RegisterButton from './RegisterButton';
 import NewsButton from './NewsButton';
 import AppLogo from './AppLogo';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import MenuIcon from '@mui/icons-material/Menu';
 import { Avatar, IconButton, Badge, MenuItem, Menu, List, ListItem, ListItemText } from '@mui/material';
 import { search } from '../../services/UserService';
 import { jwtDecode } from 'jwt-decode';
@@ -65,6 +66,7 @@ export default function PrimarySearchAppBar() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
@@ -136,6 +138,18 @@ export default function PrimarySearchAppBar() {
     setNotificationAnchorEl(null);
   };
 
+  const handleMenuClick = (event) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
+
+  const handleMenuItemClick = (route) => {
+    navigate(route)
+  }
+
   return (
     <Box>
       <AppBar position="static">
@@ -162,6 +176,18 @@ export default function PrimarySearchAppBar() {
             <Grid item xs={3} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
               {isLoggedIn && user ? (
                 <>
+                  <IconButton onClick={handleMenuClick} color="inherit" sx={{ marginRight: "10px" }}>
+                    <MenuIcon />
+                  </IconButton>
+                  <Menu
+                    anchorEl={menuAnchorEl}
+                    open={Boolean(menuAnchorEl)}
+                    onClose={handleMenuClose}
+                  >
+                    <MenuItem onClick={() => handleMenuItemClick('/forum')}>Forum</MenuItem>
+                    <MenuItem onClick={() => handleMenuItemClick('/surveys')}>Anketa</MenuItem>
+                    <MenuItem onClick={() => handleMenuItemClick('/news')}>Novosti</MenuItem>
+                  </Menu>
                   <IconButton onClick={handleNotificationClick} color="inherit" sx={{ marginRight: "10px" }}>
                     <Badge badgeContent={notifications.length} color="secondary">
                       <NotificationsIcon />
