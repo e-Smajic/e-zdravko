@@ -29,10 +29,6 @@ function Login() {
   useEffect(() => {
     // Get authToken from localStorage
     const authToken = localStorage.getItem('authToken');
-    
-    if (authToken) {
-      
-    }
   }, []);
 
   const handleSubmit = (event) => {
@@ -49,6 +45,7 @@ function Login() {
         localStorage.setItem('authToken', token);
         setError(null);
         navigate('/');
+        window.location.reload();
       })
       .catch(error => {
         setError("Podaci za prijavu nisu ispravni!");

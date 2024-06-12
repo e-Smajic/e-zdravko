@@ -13,7 +13,7 @@ import RegisterButton from './RegisterButton';
 import NewsButton from './NewsButton';
 import AppLogo from './AppLogo';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { Avatar, IconButton, Badge } from '@mui/material';
+import { Avatar, IconButton, Badge, MenuItem, Menu } from '@mui/material';
 import { search } from '../../services/UserService';
 import { jwtDecode } from 'jwt-decode';
 import { getUserWithMail } from '../../services/UserService';
@@ -62,6 +62,7 @@ export default function PrimarySearchAppBar() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
@@ -99,6 +100,24 @@ export default function PrimarySearchAppBar() {
     // Handle notification button click
   };
 
+  const handleMojProfilClick = () => {
+    navigate('/user');
+  }
+
+  const handleOdjavaClick = () => {
+    localStorage.removeItem('authToken');
+    navigate('/');
+    window.location.reload();
+  }
+
+  const handleAvatarClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Box>
       <AppBar position="static">
@@ -132,9 +151,19 @@ export default function PrimarySearchAppBar() {
                       <NotificationsIcon />
                     </Badge>
                   </IconButton>
-                  <Avatar>
-                    {user.ime.charAt(0)}
-                  </Avatar>
+                  <div>
+                    <Avatar onClick={handleAvatarClick}>
+                      {user ? user.ime.charAt(0) : '?'}
+                    </Avatar>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={Boolean(anchorEl)}
+                      onClose={handleCloseMenu}
+                    >
+                      <MenuItem onClick={handleMojProfilClick}>Moj profil</MenuItem>
+                      <MenuItem onClick={handleOdjavaClick}>Odjava</MenuItem>
+                    </Menu>
+                  </div>
                 </>
               ) : (
                 <>
