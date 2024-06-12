@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Typography, Box, Divider, TextField, Button } from '@mui/material';
+import { Container, Typography, Box, Divider, TextField, Button, Paper } from '@mui/material';
 import { getQuestionById, createComment, getComments } from '../../services/ForumService';
 import { jwtDecode } from 'jwt-decode';
 import { getUserWithMail } from '../../services/UserService';
@@ -13,11 +13,6 @@ const ForumPost = () => {
   const [comments, setComments] = useState([]);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   fetchPost();
-  //   fetchComments();
-  // }, [id]);
-
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
     const decodedToken = jwtDecode(authToken);
@@ -29,7 +24,6 @@ const ForumPost = () => {
       fetchComments();
     }
     getUserWithMail(mail).then(res => {
-      console.log(res.data);
       setUser(res.data);
     }).catch(error => {
       console.log(error);
@@ -48,7 +42,6 @@ const ForumPost = () => {
   const fetchComments = async () => {
     try {
       const response = await getComments();
-      console.log(response.data)
       setComments(response.data);
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -57,7 +50,12 @@ const ForumPost = () => {
 
   const handleCommentSubmit = async () => {
     try {
-      await createComment({ questionId: id, userUid: user.uid, sadrzaj: commentContent, anonimnost: 0});
+      await createComment({
+        questionId: id,
+        userUid: user.uid,
+        sadrzaj: commentContent,
+        anonimnost: 0
+      });
       // Refresh the comments after submitting the new comment
       fetchComments();
       // Clear the comment input field
@@ -65,7 +63,7 @@ const ForumPost = () => {
     } catch (error) {
       console.error('Error submitting comment:', error);
     }
-    window.location.reload();
+    window.location.reload(); // Consider removing this line if unnecessary
   };
 
   if (!post) {
@@ -74,8 +72,6 @@ const ForumPost = () => {
 
   // Filter comments based on the questionId of the current post
   const postComments = comments.filter(comment => comment.questionId == id);
-  // console.log("id: ", id);
-  // console.log("Ima li sta", postComments);
 
   return (
     <Container maxWidth="md" style={{ marginTop: '2rem' }}>
@@ -94,11 +90,11 @@ const ForumPost = () => {
         </Typography>
         {/* Display existing comments */}
         {postComments.map((comment, index) => (
-          <Box key={index} mt={2}>
+          <Paper key={index} elevation={3} style={{ padding: '1rem', marginTop: '1rem' }}>
             <Typography variant="body1" component="p">
               {comment.sadrzaj}
             </Typography>
-          </Box>
+          </Paper>
         ))}
         {/* Comment Form */}
         <Box mt={4}>
@@ -111,7 +107,12 @@ const ForumPost = () => {
             value={commentContent}
             onChange={(e) => setCommentContent(e.target.value)}
           />
-          <Button variant="contained" color="primary" onClick={handleCommentSubmit} style={{ marginTop: '1rem' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleCommentSubmit}
+            style={{ marginTop: '1rem' }}
+          >
             Post Comment
           </Button>
         </Box>
