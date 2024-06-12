@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:61202';
+const BASE_URL = 'http://localhost:54993';
 
 // Questions API
 const getQuestions = () => axios.get(`${BASE_URL}/questions`);
