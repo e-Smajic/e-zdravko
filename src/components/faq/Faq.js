@@ -4,16 +4,16 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const faqData = [
   {
-    question: 'Šta ima?',
-    answer: 'Evo nema ništa.'
+    question: 'Kako da napravim profil?',
+    answer: 'Kliknite na registraciju i ispunite formular sa tačnim podacima. Nakon uspješne registracije ćete biti vraćeni na početnu stranicu i moći ćete se prijaviti sa svojim računom.'
   },
   {
-    question: 'Đe si?',
-    answer: 'Eo me.'
+    question: 'Šta trebam unijeti u kod za rolu?',
+    answer: 'Ukoliko pravite obični profil kao pacijent, onda to polje ostavljate praznim. Ukoliko pravite neki drugi tip korisničkog profila, tu unosite kod koji ste dobili od administratora.'
   },
   {
-    question: 'Jesi dobar?',
-    answer: 'A brate nisam al gura se.'
+    question: 'Koliko dugo se čeka na odgovor nakon rezervacije pregleda?',
+    answer: 'Maksimalno 2 dana.'
   },
   // Add more FAQs as needed
 ];

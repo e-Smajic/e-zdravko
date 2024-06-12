@@ -13,10 +13,11 @@ import RegisterButton from './RegisterButton';
 import NewsButton from './NewsButton';
 import AppLogo from './AppLogo';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { Avatar, IconButton, Badge, MenuItem, Menu } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import { Avatar, IconButton, Badge, MenuItem, Menu, List, ListItem, ListItemText } from '@mui/material';
 import { search } from '../../services/UserService';
 import { jwtDecode } from 'jwt-decode';
-import { getUserWithMail } from '../../services/UserService';
+import { getUserWithMail, validateToken, getNotificationsFromUser } from '../../services/UserService';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -27,7 +28,7 @@ const Search = styled('div')(({ theme }) => ({
   },
   marginLeft: 0,
   width: '100%',
-  maxWidth: '800px', 
+  maxWidth: '800px',
   [theme.breakpoints.up('sm')]: {
     marginLeft: theme.spacing(3),
     width: 'auto',
@@ -52,7 +53,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('md')]: {
-      width: '40ch', 
+      width: '40ch',
     },
   },
 }));
@@ -62,21 +63,38 @@ export default function PrimarySearchAppBar() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
     if (authToken) {
-      setIsLoggedIn(true);
-      const decodedToken = jwtDecode(authToken);
-      const mail = decodedToken.sub;
-      console.log(mail);
+      validateToken({ token: authToken }).then(res => {
+        console.log(res);
+        setIsLoggedIn(true);
+        const decodedToken = jwtDecode(authToken);
+        const mail = decodedToken.sub;
+        console.log(mail);
 
-      getUserWithMail(mail).then(res => {
-        console.log(res.data);
-        setUser(res.data);
-      }).catch(error => {
-        console.log(error);
+        getUserWithMail(mail).then(res => {
+          console.log(res.data);
+          setUser(res.data);
+
+          getNotificationsFromUser(res.data.uid).then(res => {
+            const lastFiveNotifications = res.data.slice(-5);
+            setNotifications(lastFiveNotifications);
+          }).catch(err => {
+            console.log(err);
+          });
+
+        }).catch(error => {
+          console.log(error);
+        });
+
+      }).catch(err => {
+        console.log(err);
       });
     } else {
       setIsLoggedIn(false);
@@ -96,19 +114,20 @@ export default function PrimarySearchAppBar() {
     }
   };
 
-  const handleNotificationClick = () => {
-    // Handle notification button click
+  const handleNotificationClick = (event) => {
+    setNotificationAnchorEl(event.currentTarget);
   };
+
 
   const handleMojProfilClick = () => {
     navigate('/user');
-  }
+  };
 
   const handleOdjavaClick = () => {
     localStorage.removeItem('authToken');
     navigate('/');
     window.location.reload();
-  }
+  };
 
   const handleAvatarClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -116,7 +135,20 @@ export default function PrimarySearchAppBar() {
 
   const handleCloseMenu = () => {
     setAnchorEl(null);
+    setNotificationAnchorEl(null);
   };
+
+  const handleMenuClick = (event) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
+
+  const handleMenuItemClick = (route) => {
+    navigate(route)
+  }
 
   return (
     <Box>
@@ -126,9 +158,7 @@ export default function PrimarySearchAppBar() {
             <AppLogo />
 
             <Grid item xs={6}>
-              <Box  component="form"
-                    onSubmit={handleSearch}
-                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Box component="form" onSubmit={handleSearch} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Search>
                   <SearchIconWrapper>
                     <SearchIcon />
@@ -140,17 +170,46 @@ export default function PrimarySearchAppBar() {
                     onChange={handleInputChange}
                   />
                 </Search>
-              </Box>  
+              </Box>
             </Grid>
 
             <Grid item xs={3} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
               {isLoggedIn && user ? (
                 <>
-                  <IconButton onClick={handleNotificationClick} color="inherit" sx={{marginRight: "10px"}}>
-                    <Badge badgeContent={0} color="secondary">
+                  <IconButton onClick={handleMenuClick} color="inherit" sx={{ marginRight: "10px" }}>
+                    <MenuIcon />
+                  </IconButton>
+                  <Menu
+                    anchorEl={menuAnchorEl}
+                    open={Boolean(menuAnchorEl)}
+                    onClose={handleMenuClose}
+                  >
+                    <MenuItem onClick={() => handleMenuItemClick('/forum')}>Forum</MenuItem>
+                    <MenuItem onClick={() => handleMenuItemClick('/surveys')}>Anketa</MenuItem>
+                    <MenuItem onClick={() => handleMenuItemClick('/news')}>Novosti</MenuItem>
+                  </Menu>
+                  <IconButton onClick={handleNotificationClick} color="inherit" sx={{ marginRight: "10px" }}>
+                    <Badge badgeContent={notifications.length} color="secondary">
                       <NotificationsIcon />
                     </Badge>
                   </IconButton>
+                  <Menu
+                    anchorEl={notificationAnchorEl}
+                    open={Boolean(notificationAnchorEl)}
+                    onClose={handleCloseMenu}
+                  >
+                    <List>
+                      {notifications.length === 0 ? (
+                        <MenuItem>No notifications</MenuItem>
+                      ) : (
+                        notifications.map((notification) => (
+                          <MenuItem key={notification.ID}>
+                            <ListItemText primary={notification.sadrzaj} />
+                          </MenuItem>
+                        ))
+                      )}
+                    </List>
+                  </Menu>
                   <div>
                     <Avatar onClick={handleAvatarClick}>
                       {user ? user.ime.charAt(0) : '?'}
