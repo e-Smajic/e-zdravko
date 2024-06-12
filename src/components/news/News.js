@@ -1,18 +1,37 @@
-import { React, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-	CssBaseline,
 	Container,
 	Typography,
+	Box,
+	Paper,
+	Button,
+	Divider,
+	List,
+	ListItem,
+	ListItemText,
+	ListItemAvatar,
+	Avatar,
+	InputBase,
+	IconButton,
+	Menu,
+	MenuItem,
+	Modal,
+	TextField,
+	CssBaseline,
 	AppBar,
 	Toolbar,
-	Box,
 	Grid,
-	Paper,
 	Card,
 	CardContent,
 	CardMedia,
+	Alert,
 } from '@mui/material';
+
 import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
+import { Search as SearchIcon, FilterList as FilterListIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { post } from '../../services/NewsService';
+import nema_slike from './img/nemaslike.jpg';
 
 const theme = createTheme();
 
@@ -50,7 +69,7 @@ const StyledApp = styled('div')(({ theme }) => ({
 		width: '100%', // Full width of grid item
 	},
 	[`& .${classes.cardMedia}`]: {
-		height: '200px', // Fixed height for the image
+		height: '140px', // Fixed height for the image
 	},
 	[`& .${classes.cardContent}`]: {
 		flexGrow: 1,
@@ -62,9 +81,33 @@ const StyledApp = styled('div')(({ theme }) => ({
 }));
 
 const News = () => {
+	const navigate = useNavigate();
+	const [error, setError] = useState(null);
+	const [anchorEl, setAnchorEl] = useState(null);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [open, setOpen] = useState(false);
+	const [newPostTitle, setNewPostTitle] = useState('');
+	const [newPostContent, setNewPostContent] = useState('');
+	const [newPostImage, setNewPostImage] = useState(null);
 	const [newsArticles, setNewsArticles] = useState([]);
+	const [filteredArticles, setFilteredArticles] = useState([]);
+	const [searchTerm, setSearchTerm] = useState('');
+
+	const handlePageChange = newPage => {
+		setCurrentPage(newPage);
+	};
+
+	const handleOpen = () => {
+		setOpen(true);
+	};
+
+	const handleClose = () => {
+		setOpen(false);
+	};
+
 	//URL je trenutno direktno na news service (nije API gateway jos) i treba update port redovno
-	const URL = 'http://localhost:51475/news';
+	const URL = 'http://localhost:53446/news';
+
 	useEffect(() => {
 		const fetchData = async () => {
 			const result = await fetch(URL);
@@ -79,61 +122,197 @@ const News = () => {
 						imgPath: 'images/' + item.slika,
 					});
 				});
-				setNewsArticles(articles);
+				setNewsArticles(articles.reverse());
 			});
 		};
 		fetchData();
 	}, []);
 
+	const handleFormSubmit = async event => {
+		event.preventDefault();
+		// Handle form submission logic here, e.g., send the new post to the server
+		const newsDTO = { naslov: newPostTitle, sadrzaj: newPostContent, slika: newPostImage.name, user_uid: 'UID-1' };
+		console.log('New Post Title:', newPostTitle);
+		console.log('New Post Content:', newPostContent);
+		console.log('New Post Image:', newPostImage);
+
+		post(newsDTO)
+			.then(res => {
+				console.log(res);
+				setError(null);
+			})
+			.catch(error => {
+				console.log(error);
+				setError(error.response.data.message);
+			});
+		// Close the modal after submission
+		handleClose();
+		setNewsArticles([
+			{
+				title: newsDTO.naslov,
+				description: newsDTO.sadrzaj,
+				imgPath: 'images/' + newsDTO.slika,
+			},
+			...newsArticles,
+		]);
+	};
+
+	// Filter articles based on search term
+	useEffect(() => {
+		const filtered = newsArticles.filter(article => article.title.toLowerCase().includes(searchTerm.toLowerCase()));
+		setFilteredArticles(filtered);
+	}, [searchTerm, newsArticles]);
+
+	// Dummy posts data for demonstration
+	const posts = filteredArticles;
+
+	// Pagination configuration
+	const postsPerPage = 6;
+	const totalPages = Math.ceil(posts.length / postsPerPage);
+	const startIndex = (currentPage - 1) * postsPerPage;
+	const endIndex = startIndex + postsPerPage;
+	const currentPosts = posts.slice(startIndex, endIndex);
+
 	return (
-		<ThemeProvider theme={theme}>
-			<StyledApp>
-				<CssBaseline />
-				<Container maxWidth='sm' component='main' className={classes.heroContent}>
-					<Typography variant='h2' align='center' color='textPrimary' gutterBottom>
+		<Container maxWidth='md' style={{ marginTop: '2rem' }}>
+			<Box display='flex' justifyContent='space-between' alignItems='center' mb={4}>
+				<Box display='flex' alignItems='center'>
+					<Typography variant='h3' component='h1'>
 						Novosti
 					</Typography>
-					<Typography variant='h5' align='center' color='textSecondary' paragraph>
-						Ovdje možete pronaći najnovije vijesti i ažuriranja iz naše klinike.
-					</Typography>
-				</Container>
-				<main>
-					<Container maxWidth='md'>
-						<Grid container spacing={4}>
-							{newsArticles.map((article, index) => (
-								<Grid item xs={12} md={6} key={index}>
-									<Card className={classes.card}>
-										<CardMedia
-											className={classes.cardMedia}
-											component='img'
-											image={article.imgPath}
-											alt={article.title}
-										/>
+				</Box>
+				<Box display='flex' alignItems='center'>
+					<Paper
+						component='form'
+						elevation={0}
+						sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 'auto' }}
+					>
+						<InputBase
+							sx={{ ml: 1, flex: 1 }}
+							placeholder='Pretraži'
+							inputProps={{ 'aria-label': 'search news' }}
+							value={searchTerm}
+							onChange={e => setSearchTerm(e.target.value)}
+						/>
+						<IconButton type='submit' sx={{ p: '10px' }} aria-label='search'>
+							<SearchIcon />
+						</IconButton>
+					</Paper>
+					<Button variant='contained' color='primary' sx={{ ml: 2 }} onClick={handleOpen}>
+						Dodaj novost
+					</Button>
+				</Box>
+			</Box>
+			<Divider />
+			{error != null ? (
+				<Alert severity='error' variant='filled' style={{ marginBottom: '20px' }}>
+					{error}
+				</Alert>
+			) : null}
+			<main>
+				<Container maxWidth='md'>
+					<Grid container spacing={4}>
+						{currentPosts.map((article, index) => (
+							<Grid item xs={12} md={6} key={index}>
+								<Card className={classes.card}>
+									<CardMedia
+										className={classes.cardMedia}
+										component='img'
+										image={article.imgPath}
+										alt={article.title}
+										onError={e => {
+											e.target.src = nema_slike;
+										}}
+									/>
 
-										<CardContent className={classes.cardContent}>
-											<Typography gutterBottom variant='h5' component='div'>
-												{article.title}
-											</Typography>
-											<Typography variant='body2' color='textSecondary'>
-												{article.description}
-											</Typography>
-										</CardContent>
-									</Card>
-								</Grid>
-							))}
-						</Grid>
-					</Container>
-				</main>
-				<footer className={classes.footer}>
-					<Typography variant='h6' align='center' gutterBottom>
-						e-Zdravko klinika
+									<CardContent className={classes.cardContent}>
+										<Typography gutterBottom variant='h5' component='div'>
+											{article.title}
+										</Typography>
+										<Typography variant='body2' color='textSecondary'>
+											{article.description}
+										</Typography>
+									</CardContent>
+								</Card>
+							</Grid>
+						))}
+					</Grid>
+				</Container>
+			</main>
+			<Box mt={4} display='flex' justifyContent='center'>
+				<Button disabled={currentPage === 1} onClick={() => handlePageChange(currentPage - 1)}>
+					Prethodna
+				</Button>
+				<Typography variant='body1' component='div' sx={{ mx: 2 }}>
+					{currentPage}
+				</Typography>
+				<Button disabled={currentPage === totalPages} onClick={() => handlePageChange(currentPage + 1)}>
+					Sljedeća
+				</Button>
+			</Box>
+
+			<Modal
+				open={open}
+				onClose={handleClose}
+				aria-labelledby='new-post-modal-title'
+				aria-describedby='new-post-modal-description'
+			>
+				<Box
+					sx={{
+						position: 'absolute',
+						top: '50%',
+						left: '50%',
+						transform: 'translate(-50%, -50%)',
+						width: 400,
+						bgcolor: 'background.paper',
+						boxShadow: 24,
+						p: 4,
+					}}
+				>
+					<Typography id='new-post-modal-title' variant='h6' component='h2'>
+						Dodaj novost
 					</Typography>
-					<Typography variant='subtitle1' align='center' color='textSecondary' component='p'>
-						Posvećeni vašem zdravlju i dobrobiti
-					</Typography>
-				</footer>
-			</StyledApp>
-		</ThemeProvider>
+					<form onSubmit={handleFormSubmit}>
+						<TextField
+							margin='normal'
+							required
+							fullWidth
+							id='title'
+							label='Naslov'
+							name='title'
+							value={newPostTitle}
+							onChange={e => setNewPostTitle(e.target.value)}
+							autoFocus
+						/>
+						<TextField
+							margin='normal'
+							required
+							fullWidth
+							name='content'
+							label='Sadržaj'
+							type='text'
+							id='content'
+							value={newPostContent}
+							onChange={e => setNewPostContent(e.target.value)}
+							multiline
+							rows={4}
+						/>
+						<Box>
+							<p>Dodaj sliku</p>
+							<input type='file' accept='image/*' onChange={e => setNewPostImage(e.target.files[0])} />
+						</Box>
+						<Box mt={2} display='flex' justifyContent='flex-end'>
+							<Button onClick={handleClose} sx={{ mr: 2 }}>
+								Odustani
+							</Button>
+							<Button type='submit' variant='contained' color='primary'>
+								Dodaj
+							</Button>
+						</Box>
+					</form>
+				</Box>
+			</Modal>
+		</Container>
 	);
 };
 
