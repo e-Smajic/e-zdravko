@@ -6,25 +6,41 @@ import diaryLogo from './img/diary-logo.png';
 import resultsLogo from './img/results-logo.png';
 import therapyLogo from './img/therapy-logo.png';
 import { jwtDecode } from 'jwt-decode';
-import { getUserWithMail } from '../../services/UserService';
+import { getUserWithMail, validateToken } from '../../services/UserService';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       const authToken = localStorage.getItem('authToken');
-      const decodedToken = jwtDecode(authToken);
-      const mail = decodedToken.sub;
+
+      if (authToken) {
+
+        validateToken({token: authToken}).then(res => {
+          const decodedToken = jwtDecode(authToken);
+          const mail = decodedToken.sub;
+          
+          getUserWithMail(mail).then(res => {
+            console.log(res.data);
+            setUser(res.data);
+          }).catch(error => {
+            console.log(error);
+          });
+        }).catch(err => {
+          navigate('/login');
+        });
+    
+      }
+      else {
+        navigate('/login');
+      }
+
       
-      getUserWithMail(mail).then(res => {
-        console.log(res.data);
-        setUser(res.data);
-      }).catch(error => {
-        console.log(error);
-      });
     };
 
     fetchData();
