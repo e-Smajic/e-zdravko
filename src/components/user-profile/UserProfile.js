@@ -123,7 +123,7 @@ const ProfilePage = () => {
         >
           <img src={therapyLogo} style={{width: '100px'}}/>
           <Typography variant="h6" component="div">
-            Naruči terapiju
+            Terapije
           </Typography>
         </Button>
         <Button

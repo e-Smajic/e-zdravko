@@ -84,3 +84,13 @@ export function postDiaryEntry(data) {
 	});
 }
 
+export function getTherapiesFromUser(uid) {
+	const token = localStorage.getItem('authToken');
+	return axios(env.API_GATEWAY.testUrl + '/NewsService/therapy/uid/' + uid, {
+		method: 'GET',
+		headers: {
+			'Authorization': `Bearer ${token}`,
+			'Content-Type': 'application/json',
+		  },
+	})
+}
