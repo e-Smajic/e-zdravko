@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:54993';
+const BASE_URL = 'http://localhost:8080/ForumService';
 
 // Questions API
 const getQuestions = () => axios.get(`${BASE_URL}/questions`);

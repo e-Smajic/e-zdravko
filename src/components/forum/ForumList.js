@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Divider, List, ListItem, ListItemText } from '@mui/material';
-import { getQuestions, getQuestionById } from '../../services/ForumService';
+import { Container, Typography, Box, Divider, List, ListItem, ListItemText, TextField, Button, Modal } from '@mui/material';
+import { getQuestions, getQuestionById, createQuestion } from '../../services/ForumService';
 import { Link } from 'react-router-dom';
 
 const ForumList = () => {
   const [posts, setPosts] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [newQuestion, setNewQuestion] = useState({
+    naslov: '',
+    sadrzaj: '',
+    anonimnost: 0,
+  });
 
   useEffect(() => {
     fetchPosts();
@@ -17,6 +23,23 @@ const ForumList = () => {
       console.log(posts)
     } catch (error) {
       console.error('Error fetching posts:', error);
+    }
+  };
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const handleChange = (e) => {
+    setNewQuestion({ ...newQuestion, [e.target.name]: e.target.value });
+  };
+
+  const handleCreatePost = async () => {
+    try {
+      await createQuestion(newQuestion);
+      fetchPosts();
+      handleClose();
+    } catch (error) {
+      console.error('Error creating question:', error);
     }
   };
 
@@ -36,6 +59,9 @@ const ForumList = () => {
         Forum
       </Typography>
       <Divider />
+      <Button variant="contained" color="primary" onClick={handleOpen} style={{ marginTop: '1rem' }}>
+        Create Post
+      </Button>
       <List>
         {posts.map((post) => (
           <React.Fragment key={post.id}>
@@ -49,6 +75,19 @@ const ForumList = () => {
           </React.Fragment>
         ))}
       </List>
+      <Modal open={open} onClose={handleClose}>
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', border: '2px solid #000', boxShadow: 24, p: 4 }}>
+          <Typography variant="h6" component="h2">
+            Create a New Post
+          </Typography>
+          <TextField fullWidth label="Title" name="naslov" value={newQuestion.naslov} onChange={handleChange} margin="normal" />
+          <TextField fullWidth label="Content" name="sadrzaj" value={newQuestion.sadrzaj} onChange={handleChange} margin="normal" multiline rows={4} />
+          <TextField fullWidth label="Anonymity" name="anonimnost" type="number" value={newQuestion.anonimnost} onChange={handleChange} margin="normal" />
+          <Button variant="contained" color="primary" onClick={handleCreatePost} style={{ marginTop: '1rem' }}>
+            Post
+          </Button>
+        </Box>
+      </Modal>
     </Container>
   );
 };
