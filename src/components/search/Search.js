@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, List, ListItem, ListItemAvatar, Avatar, ListItemText, Typography } from '@mui/material';
 import { search } from '../../services/UserService';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const useQuery = () => {
     return new URLSearchParams(useLocation().search);
@@ -11,6 +11,7 @@ const UsersList = () => {
     const [users, setUsers] = useState([]);
     const query = useQuery();
     const searchQuery = query.get('search');
+    const navigate = useNavigate();
   
     useEffect(() => {
         const fetchData = async () => {
@@ -38,6 +39,10 @@ const UsersList = () => {
     
         fetchData();
       }, [searchQuery]);
+
+    const handleUserClick = (user) => {
+      navigate('/profile', { state: { user } });
+    };
     
       return (
         <Container>
@@ -46,7 +51,7 @@ const UsersList = () => {
           </Typography>
           <List>
             {users.map((user) => (
-              <ListItem key={user.id}>
+              <ListItem key={user.id} button onClick={() => handleUserClick(user)}>
                 <ListItemAvatar>
                   <Avatar>
                     {user.ime.charAt(0)}

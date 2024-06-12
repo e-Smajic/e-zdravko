@@ -7,6 +7,7 @@ import home_img from './img/medicinsko_osoblje.jpg';
 import termin_img from './img/zakazivanje_termina.jpg';
 import konsultacije_img from './img/konsultacija_doktor.jpg';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const theme = createTheme();
 
@@ -81,6 +82,8 @@ const carouselItems = [
   ];
 
 const Home = () => {
+  const navigate = useNavigate();
+
   return (
     <ThemeProvider theme={theme}>
       <StyledApp>
@@ -115,8 +118,11 @@ const Home = () => {
               Zakažite termine, posavjetujte se sa specijalistima i pristupite vašim nalazima online.
             </Typography>
             <div style={{ textAlign: 'center' }}>
-              <Button variant="contained" color="primary" href="#services">
-                Naše usluge
+              <Button variant="contained" color="primary" onClick={() => {navigate('/contacts')}}>
+                Kontaktirajte nas
+              </Button>
+              <Button variant="contained" color="primary" sx={{marginLeft: '50px'}} onClick={() => {navigate('/faq')}}>
+                Najčešća pitanja
               </Button>
             </div>
           </Container>
