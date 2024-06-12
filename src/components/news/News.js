@@ -6,20 +6,10 @@ import {
 	Paper,
 	Button,
 	Divider,
-	List,
-	ListItem,
-	ListItemText,
-	ListItemAvatar,
-	Avatar,
 	InputBase,
 	IconButton,
-	Menu,
-	MenuItem,
 	Modal,
 	TextField,
-	CssBaseline,
-	AppBar,
-	Toolbar,
 	Grid,
 	Card,
 	CardContent,
@@ -30,8 +20,10 @@ import {
 import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
 import { Search as SearchIcon, FilterList as FilterListIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { post } from '../../services/NewsService';
+import { getNews, post } from '../../services/NewsService';
 import nema_slike from './img/nemaslike.jpg';
+import { getUserWithMail } from '../../services/UserService';
+import { jwtDecode } from 'jwt-decode';
 
 const theme = createTheme();
 
@@ -92,6 +84,7 @@ const News = () => {
 	const [newsArticles, setNewsArticles] = useState([]);
 	const [filteredArticles, setFilteredArticles] = useState([]);
 	const [searchTerm, setSearchTerm] = useState('');
+	const [user, setUser] = useState(null);
 
 	const handlePageChange = newPage => {
 		setCurrentPage(newPage);
@@ -105,33 +98,54 @@ const News = () => {
 		setOpen(false);
 	};
 
-	//URL je trenutno direktno na news service (nije API gateway jos) i treba update port redovno
-	const URL = 'http://localhost:53446/news';
-
 	useEffect(() => {
-		const fetchData = async () => {
-			const result = await fetch(URL);
+		const authToken = localStorage.getItem('authToken');
+		const decodedToken = jwtDecode(authToken);
+		const mail = decodedToken.sub;
+		if (!authToken) {
+			navigate('/login');
+		} else {
+			fetchData();
+		}
+		getUserWithMail(mail)
+			.then(res => {
+				console.log(res.data);
+				setUser(res.data);
+			})
+			.catch(error => {
+				console.log(error);
+			});
+	}, []);
+
+	const fetchData = async () => {
+		try {
+			const response = await getNews();
+			const result = response.data.reverse();
 			const articles = [];
 			console.log(result);
-			result.json().then(json => {
-				console.log(json);
-				json.forEach(item => {
-					articles.push({
-						title: item.naslov,
-						description: item.sadrzaj,
-						imgPath: 'images/' + item.slika,
-					});
+			result.forEach(item => {
+				articles.push({
+					title: item.naslov,
+					description: item.sadrzaj,
+					imgPath: 'images/' + item.slika,
 				});
-				setNewsArticles(articles.reverse());
 			});
-		};
-		fetchData();
-	}, []);
+			setNewsArticles(articles);
+		} catch (error) {
+			console.log(error);
+			console.error('Error fetching news:', error);
+		}
+	};
 
 	const handleFormSubmit = async event => {
 		event.preventDefault();
 		// Handle form submission logic here, e.g., send the new post to the server
-		const newsDTO = { naslov: newPostTitle, sadrzaj: newPostContent, slika: newPostImage.name, user_uid: 'UID-1' };
+		const newsDTO = {
+			naslov: newPostTitle,
+			sadrzaj: newPostContent,
+			slika: newPostImage.name,
+			user_uid: user.uid,
+		};
 		console.log('New Post Title:', newPostTitle);
 		console.log('New Post Content:', newPostContent);
 		console.log('New Post Image:', newPostImage);
