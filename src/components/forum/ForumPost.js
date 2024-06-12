@@ -65,6 +65,7 @@ const ForumPost = () => {
     } catch (error) {
       console.error('Error submitting comment:', error);
     }
+    window.location.reload();
   };
 
   if (!post) {
@@ -73,8 +74,8 @@ const ForumPost = () => {
 
   // Filter comments based on the questionId of the current post
   const postComments = comments.filter(comment => comment.questionId == id);
-  console.log("id: ", id);
-  console.log("Ima li sta", postComments);
+  // console.log("id: ", id);
+  // console.log("Ima li sta", postComments);
 
   return (
     <Container maxWidth="md" style={{ marginTop: '2rem' }}>
