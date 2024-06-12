@@ -24,6 +24,7 @@ import DiaryEntries from './components/health-diary/DiaryEntries';
 import Referral from './components/referral/Referral';
 import Examination from './components/examination/Examination';
 import Footer from './components/footer/Footer';
+import UsersList from './components/search/Search';
 
 function App() {
   const dummyPost = {
@@ -60,6 +61,7 @@ function App() {
           <Route path="/examination" element={<Examination />} />
           <Route path="/referral" element={<Referral />} />
           <Route path="/diary-entries" element={<DiaryEntries />} />
+          <Route path="/users" element={<UsersList />} />
         </Routes>
         <Footer />
       </Router>
