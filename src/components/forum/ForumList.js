@@ -1,26 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Box, Divider, List, ListItem, ListItemText, TextField, Button, Modal } from '@mui/material';
 import { getQuestions, getQuestionById, createQuestion } from '../../services/ForumService';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { getUserWithMail } from '../../services/UserService';
+import { jwtDecode } from 'jwt-decode';
 
 const ForumList = () => {
   const [posts, setPosts] = useState([]);
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const [newQuestion, setNewQuestion] = useState({
     naslov: '',
     sadrzaj: '',
     anonimnost: 0,
+    userUid: ''
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchPosts();
+    const authToken = localStorage.getItem('authToken');
+    const decodedToken = jwtDecode(authToken);
+    const mail = decodedToken.sub;
+    if (!authToken) {
+      navigate('/login');
+    } else {
+      fetchPosts();
+    }
+    getUserWithMail(mail).then(res => {
+      console.log(res.data);
+      setUser(res.data);
+    }).catch(error => {
+      console.log(error);
+    });
   }, []);
 
   const fetchPosts = async () => {
     try {
       const response = await getQuestions();
-      setPosts(response.data);
-      console.log(posts)
+      setPosts(response.data.reverse());
     } catch (error) {
       console.error('Error fetching posts:', error);
     }
@@ -29,25 +46,29 @@ const ForumList = () => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  // console.log("userUId", user.uid);
+  // newQuestion.userUid = user.uid;
+
   const handleChange = (e) => {
     setNewQuestion({ ...newQuestion, [e.target.name]: e.target.value });
   };
 
   const handleCreatePost = async () => {
     try {
+      newQuestion.userUid = user.uid;
       await createQuestion(newQuestion);
       fetchPosts();
-      handleClose();
     } catch (error) {
       console.error('Error creating question:', error);
     }
+    handleClose();
+    window.location.reload();
   };
 
   const handleClickPost = async (postId) => {
-    console.log("id: ", postId);
     try {
-      const response = await getQuestionById(postId);
-      window.location.href = `/forum/${postId}`; // Assuming your URL structure is '/forum/postId'
+      await getQuestionById(postId);
+      navigate(`/forum/${postId}`);
     } catch (error) {
       console.error('Error fetching post details:', error);
     }

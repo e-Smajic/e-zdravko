@@ -1,17 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Typography, Box, Divider, TextField, Button } from '@mui/material';
 import { getQuestionById, createComment, getComments } from '../../services/ForumService';
+import { jwtDecode } from 'jwt-decode';
+import { getUserWithMail } from '../../services/UserService';
 
 const ForumPost = () => {
   const { id } = useParams();
   const [post, setPost] = useState(null);
+  const [user, setUser] = useState(null);
   const [commentContent, setCommentContent] = useState('');
   const [comments, setComments] = useState([]);
+  const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   fetchPost();
+  //   fetchComments();
+  // }, [id]);
 
   useEffect(() => {
-    fetchPost();
-    fetchComments();
+    const authToken = localStorage.getItem('authToken');
+    const decodedToken = jwtDecode(authToken);
+    const mail = decodedToken.sub;
+    if (!authToken) {
+      navigate('/login');
+    } else {
+      fetchPost();
+      fetchComments();
+    }
+    getUserWithMail(mail).then(res => {
+      console.log(res.data);
+      setUser(res.data);
+    }).catch(error => {
+      console.log(error);
+    });
   }, [id]);
 
   const fetchPost = async () => {
@@ -35,7 +57,7 @@ const ForumPost = () => {
 
   const handleCommentSubmit = async () => {
     try {
-      await createComment({ content: commentContent, questionId: id });
+      await createComment({ questionId: id, userUid: user.uid, sadrzaj: commentContent, anonimnost: 0});
       // Refresh the comments after submitting the new comment
       fetchComments();
       // Clear the comment input field
