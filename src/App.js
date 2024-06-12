@@ -15,6 +15,16 @@ import ForumPost from './components/forum/ForumPost';
 import SurveyList from './components/survey/SurveyList';
 import SurveyPost from './components/survey/SurveyPost';
 import SurveyCreate from './components/survey/SurveyCreate';
+import Notifications from './components/notifications/Notifications';
+import Therapy from './components/therapy/Therapy';
+import TestResults from './components/test/TestResults';
+import Test from './components/test/Test';
+import HealthDiary from './components/health-diary/HealthDiary';
+import DiaryEntries from './components/health-diary/DiaryEntries';
+import Referral from './components/referral/Referral';
+import Examination from './components/examination/Examination';
+import Footer from './components/footer/Footer';
+import UsersList from './components/search/Search';
 
 function App() {
   const dummyPost = {
@@ -43,7 +53,17 @@ function App() {
           <Route path="/surveys" element={<SurveyList />} />
           <Route path="/survey/:id" element={<SurveyPost />} />
           <Route path="/survey/create" element={<SurveyCreate />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/therapy" element={<Therapy />} />
+          <Route path="/test-results" element={<TestResults />} />
+          <Route path="/test" element={<Test />} />
+          <Route path="/health-diary" element={<HealthDiary />} />
+          <Route path="/examination" element={<Examination />} />
+          <Route path="/referral" element={<Referral />} />
+          <Route path="/diary-entries" element={<DiaryEntries />} />
+          <Route path="/users" element={<UsersList />} />
         </Routes>
+        <Footer />
       </Router>
     </div>
   );

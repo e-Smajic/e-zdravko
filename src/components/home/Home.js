@@ -6,6 +6,7 @@ import Carousel from 'react-material-ui-carousel';
 import home_img from './img/medicinsko_osoblje.jpg';
 import termin_img from './img/zakazivanje_termina.jpg';
 import konsultacije_img from './img/konsultacija_doktor.jpg';
+import { useEffect } from 'react';
 
 const theme = createTheme();
 
@@ -164,14 +165,6 @@ const Home = () => {
             </Grid>
           </Container>
         </main>
-        <footer className={classes.footer}>
-          <Typography variant="h6" align="center" gutterBottom>
-            e-Zdravko klinika
-          </Typography>
-          <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
-          Posvećeni vašem zdravlju i dobrobiti          
-          </Typography>
-        </footer>
       </StyledApp>
     </ThemeProvider>
   );

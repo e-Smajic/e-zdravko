@@ -7,6 +7,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { register } from '../../services/UserService';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 
 
 const theme = createTheme();
@@ -16,7 +17,7 @@ const Register = () => {
     ime: '',
     prezime: '',
     datum_rodjenja: null,
-    spol: '',
+    spol: 0,
     broj_telefona: '',
     email: '',
     password: '',
@@ -47,10 +48,10 @@ const Register = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    formData.uid = "uid-" + formData.ime + "-" + formData.broj_telefona; 
 
     register(formData)
       .then(res => {
-        console.log(res);
         setError(null);
         navigate('/');
       })
@@ -146,9 +147,9 @@ const Register = () => {
                             <Grid item xs={9}>
                                 <FormControl component="fieldset">
                                     <RadioGroup row name="spol" value={formData.spol} onChange={handleChange} required>
-                                        <FormControlLabel value="male" control={<Radio />} label="Muško" />
-                                        <FormControlLabel value="female" control={<Radio />} label="Žensko" />
-                                        <FormControlLabel value="other" control={<Radio />} label="Ostalo" />
+                                        <FormControlLabel value={0} control={<Radio />} label="Muško" />
+                                        <FormControlLabel value={1} control={<Radio />} label="Žensko" />
+                                        <FormControlLabel value={2} control={<Radio />} label="Ostalo" />
                                     </RadioGroup>
                                 </FormControl>
                             </Grid>
